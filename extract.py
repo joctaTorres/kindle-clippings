@@ -1,30 +1,46 @@
-from io import BufferedIOBase
 import sys
 import re
 
+from typing import Optional
+from dataclasses import dataclass
 from itertools import zip_longest
 
 
 CLIPPING_SEPARATOR = "=========="
-BOOK_AUTHOR_REGEX = re.compile(r"^(?P<book>.+)\s\((?P<author>.+)\)$")
-HIGHLIGHT_DESCRIPTION = re.compile(r"^\-\s(?P<description>.+?)\s\|\s((?P<location>.+)\s\|\s)?(?P<date>.+)$")
+TITLE_AUTHOR_REGEX = re.compile(r"^(?P<book>.+)\s\((?P<author>.+)\)$")
+DESCRIPTION_REGEX = re.compile(r"^\-\s(?P<description>.+?)\s\|\s((?P<location>.+)\s\|\s)?(?P<date>.+)$")
 CLIPPING_SIZE_LINES = 5
-
 
 
 def grouper(n, iterable, fillvalue=None):
     args = [iter(iterable)] * n
     return zip_longest(fillvalue=fillvalue, *args)
 
+@dataclass
+class BookClipping:
+    title: str
+    author: str
+    description: str
+    location: Optional[str]
+    clip_date: str
 
-def parse(file):
-    with open(file) as clippings:
+
+def parse(filepath):
+    with open(filepath, "r", encoding='utf-8-sig') as clippings:
         count = 0
         for title, description, _, clip, _ in grouper(CLIPPING_SIZE_LINES, clippings):
-            print(title)
-            print(description)
-            print(clip)
-            count +=1
+            title_author_match = TITLE_AUTHOR_REGEX.match(title)
+            description_match = DESCRIPTION_REGEX.match(description)
+
+            book_clipping = BookClipping(
+                title_author_match.group("book"),
+                title_author_match.group("author"),
+                description_match.group("description"),
+                description_match.group("location"),
+                description_match.group("date")
+            )
+
+            print(book_clipping)
 
             if count >= 5:
                 break
