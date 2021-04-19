@@ -55,11 +55,10 @@ def match_book(clippings, book_title):
 
 
 
-
-
-
 if __name__ == "__main__":
     clipping_filepath = sys.argv[1]
+    book_title = sys.argv[2]
+
     clippings = parse(clipping_filepath)
-    match_book(clippings, "Mythical Man-Month")
+    match_book(clippings, book_title)
 
