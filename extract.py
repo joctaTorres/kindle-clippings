@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from itertools import zip_longest
 
 
-CLIPPING_SEPARATOR = "=========="
 TITLE_AUTHOR_REGEX = re.compile(r"^(?P<book>.+)\s\((?P<author>.+)\)$")
 DESCRIPTION_REGEX = re.compile(r"^\-\s(?P<description>.+?)\s\|\s((?P<location>.+)\s\|\s)?(?P<date>.+)$")
 CLIPPING_SIZE_LINES = 5
@@ -50,8 +49,16 @@ def match_book(clippings, book_title):
     
     for clipping in clippings:
         if has_match(clipping):
-            print(clipping.text)
-            print()
+            yield clipping
+
+
+def output(wanted_clippings, book_title):
+    clean_title = re.sub("\W+", "", book_title)
+
+    with open(f"{clean_title}_clippings.txt", 'a') as output:
+        for clipping in wanted_clippings:
+            output.write(clipping.text)
+            output.write("\n----------------\n")
 
 
 
@@ -60,5 +67,6 @@ if __name__ == "__main__":
     book_title = sys.argv[2]
 
     clippings = parse(clipping_filepath)
-    match_book(clippings, book_title)
+    wanted_clippings = match_book(clippings, book_title)
 
+    output(wanted_clippings, book_title)
