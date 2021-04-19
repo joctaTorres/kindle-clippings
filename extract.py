@@ -18,6 +18,7 @@ def grouper(n, iterable, fillvalue=None):
 
 @dataclass
 class BookClipping:
+    text: str
     title: str
     author: str
     description: str
@@ -27,12 +28,12 @@ class BookClipping:
 
 def parse(filepath):
     with open(filepath, "r", encoding='utf-8-sig') as clippings:
-        count = 0
-        for title, description, _, clip, _ in grouper(CLIPPING_SIZE_LINES, clippings):
+        for title, description, _, clipping, _ in grouper(CLIPPING_SIZE_LINES, clippings):
             title_author_match = TITLE_AUTHOR_REGEX.match(title)
             description_match = DESCRIPTION_REGEX.match(description)
 
-            book_clipping = BookClipping(
+            yield BookClipping(
+                clipping.strip(),
                 title_author_match.group("book"),
                 title_author_match.group("author"),
                 description_match.group("description"),
@@ -40,13 +41,25 @@ def parse(filepath):
                 description_match.group("date")
             )
 
-            print(book_clipping)
 
-            if count >= 5:
-                break
+def match_book(clippings, book_title):
+    book_title =  book_title.strip().lower()
+
+    def has_match(clipping):
+        return book_title in clipping.title.strip().lower()
+    
+    for clipping in clippings:
+        if has_match(clipping):
+            print(clipping.text)
+            print()
+
+
+
 
 
 
 if __name__ == "__main__":
     clipping_filepath = sys.argv[1]
-    parse(clipping_filepath)
+    clippings = parse(clipping_filepath)
+    match_book(clippings, "Mythical Man-Month")
+
