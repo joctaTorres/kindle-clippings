@@ -1,5 +1,7 @@
 from io import BufferedIOBase
+import sys
 import re
+
 from itertools import zip_longest
 
 
@@ -30,4 +32,5 @@ def parse(file):
 
 
 if __name__ == "__main__":
-    parse("highlights")
+    clipping_filepath = sys.argv[1]
+    parse(clipping_filepath)
